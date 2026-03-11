@@ -129,16 +129,23 @@ app.post('/api/articles', (req, res) => {
       return res.status(400).json({ error: 'Title and content are required' });
     }
 
-    // Convert boolean to integer for SQLite
+    // Convert any value to integer for SQLite
     const aiGenValue = ai_generated ? 1 : 0;
+    
+    // Ensure all values are strings or numbers
+    const safeTitle = String(title);
+    const safeContent = String(content);
+    const safeCategory = String(category || 'news');
+    const safeSource = source ? String(source) : null;
+    const safeImageUrl = image_url ? String(image_url) : null;
 
     const stmt = db.prepare(`
       INSERT INTO articles (title, content, category, source, image_url, ai_generated)
       VALUES (?, ?, ?, ?, ?, ?)
     `);
     
-    const result = stmt.run(title, content, category, source, image_url || null, aiGenValue);
-    res.status(201).json({ id: result.lastInsertRowid, ...req.body });
+    const result = stmt.run(safeTitle, safeContent, safeCategory, safeSource, safeImageUrl, aiGenValue);
+    res.status(201).json({ id: result.lastInsertRowid, title: safeTitle, content: safeContent, category: safeCategory, source: safeSource, ai_generated: aiGenValue });
   } catch (err) {
     console.error('Create article error:', err);
     res.status(500).json({ error: err.message });
