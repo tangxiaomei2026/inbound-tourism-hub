@@ -129,14 +129,18 @@ app.post('/api/articles', (req, res) => {
       return res.status(400).json({ error: 'Title and content are required' });
     }
 
+    // Convert boolean to integer for SQLite
+    const aiGenValue = ai_generated ? 1 : 0;
+
     const stmt = db.prepare(`
       INSERT INTO articles (title, content, category, source, image_url, ai_generated)
       VALUES (?, ?, ?, ?, ?, ?)
     `);
     
-    const result = stmt.run(title, content, category, source, image_url, ai_generated);
+    const result = stmt.run(title, content, category, source, image_url || null, aiGenValue);
     res.status(201).json({ id: result.lastInsertRowid, ...req.body });
   } catch (err) {
+    console.error('Create article error:', err);
     res.status(500).json({ error: err.message });
   }
 });
