@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入境游中国 - AI驱动的文化旅游平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Sora:wght@400;500;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f1f5f9;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.875rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, transparent, rgba(59, 130, 246, 0.1)), 
+                  radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      padding: 4rem 2rem;
+      margin: 2rem 0;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.125rem;
+      color: #cbd5e1;
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    .article-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .article-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(251, 191, 36, 0.3);
+      box-shadow: 0 20px 40px rgba(251, 191, 36, 0.1);
+    }
+
+    .article-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .article-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .article-image.placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .article-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fcd34d;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-badge.ai {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+      border-color: rgba(52, 211, 153, 0.3);
+      color: #86efac;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+      color: #f1f5f9;
+    }
+
+    .article-excerpt {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .search-box {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: #f1f5f9;
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: rgba(251, 191, 36, 0.5);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
+    }
+
+    .category-filter {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .category-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 0.5rem;
+      background: transparent;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .category-btn:hover,
+    .category-btn.active {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+      border-color: rgba(251, 191, 36, 0.5);
+      color: #fcd34d;
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(251, 191, 36, 0.1);
+      border-top: 3px solid #fbbf24;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 0.5rem;
+      background: transparent;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .pagination button:hover,
+    .pagination button.active {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+      border-color: rgba(251, 191, 36, 0.5);
+      color: #fcd34d;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding: 2rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    .section {
+      margin-bottom: 4rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #f1f5f9;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <div class="logo">🌍 入境游中国</div>
+      <div class="text-sm text-slate-400">AI 驱动的文化旅游平台</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4">
+    <!-- Hero Section -->
+    <div class="hero">
+      <h1>欢迎来到入境游中国</h1>
+      <p>发现最新的中国入境旅游资讯、产品创新和文化体验。由 AI 驱动的实时新闻聚合平台。</p>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">0</div>
+        <div class="stat-label">总文章数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-ai">0</div>
+        <div class="stat-label">AI 生成文章</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-sources">0</div>
+        <div class="stat-label">内容分类</div>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="section">
+      <div class="mb-4">
+        <input 
+          type="text" 
+          class="search-box w-full" 
+          id="searchInput"
+          placeholder="搜索文章... (新闻、产品、数据)"
+        >
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="section">
+      <div class="category-filter" id="categoryFilter">
+        <button class="category-btn active" data-category="">全部</button>
+      </div>
+    </div>
+
+    <!-- Articles Section -->
+    <div class="section">
+      <h2 class="section-title">最新资讯</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="articlesGrid">
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>🦞 OpenClaw × MiniMax-M2.1 AI 生成文章 | 每日自动更新 | <span id="lastUpdate">-</span></p>
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 1;
+    let currentCategory = '';
+    let currentSearchQuery = '';
+
+    // Load articles
+    async function loadArticles(page = 1, category = '', search = '') {
+      try {
+        let url = `/api/articles?page=${page}&limit=9`;
+        if (category) url += `&category=${category}`;
+        
+        if (search) {
+          url = `/api/search?q=${encodeURIComponent(search)}`;
+        }
+
+        const response = await axios.get(url);
+        const { data, pagination } = response.data || { data: response.data.data, pagination: {} };
+
+        // Render articles
+        const grid = document.getElementById('articlesGrid');
+        if (data.length === 0) {
+          grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400">暂无文章</div>';
+        } else {
+          grid.innerHTML = data.map(article => `
+            <div class="article-card">
+              <div class="article-image placeholder">
+                ${article.image_url ? `<img src="${article.image_url}" alt="${article.title}">` : '📰'}
+              </div>
+              <div class="p-6">
+                ${article.ai_generated ? '<div class="article-badge ai">🤖 AI生成</div>' : '<div class="article-badge">' + (article.category || '新闻') + '</div>'}
+                <h3 class="article-title">${article.title}</h3>
+                <p class="article-excerpt">${article.content.substring(0, 100)}...</p>
+                <div class="article-meta">
+                  <span>${new Date(article.created_at).toLocaleDateString('zh-CN')}</span>
+                  <span>${article.source || '平台'}</span>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Render pagination
+        if (pagination && pagination.pages) {
+          const paginationDiv = document.getElementById('pagination');
+          let paginationHTML = '';
+          for (let i = 1; i <= pagination.pages; i++) {
+            paginationHTML += `
+              <button class="category-btn ${i === page ? 'active' : ''}" onclick="goToPage(${i})">
+                ${i}
+              </button>
+            `;
+          }
+          paginationDiv.innerHTML = paginationHTML;
+        }
+
+        currentPage = page;
+      } catch (err) {
+        console.error('Error loading articles:', err);
+        document.getElementById('articlesGrid').innerHTML = '<div class="col-span-full text-center py-12 text-red-400">加载失败</div>';
+      }
+    }
+
+    // Load categories
+    async function loadCategories() {
+      try {
+        const response = await axios.get('/api/categories');
+        const categories = response.data;
+        
+        const filterDiv = document.getElementById('categoryFilter');
+        let html = '<button class="category-btn active" data-category="">全部</button>';
+        categories.forEach(cat => {
+          html += `<button class="category-btn" data-category="${cat}">${cat}</button>`;
+        });
+        filterDiv.innerHTML = html;
+
+        // Add event listeners
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentCategory = e.target.dataset.category;
+            currentPage = 1;
+            loadArticles(1, currentCategory, currentSearchQuery);
+          });
+        });
+      } catch (err) {
+        console.error('Error loading categories:', err);
+      }
+    }
+
+    // Load statistics
+    async function loadStats() {
+      try {
+        const response = await axios.get('/api/stats');
+        document.getElementById('stat-total').textContent = response.data.total_articles;
+        document.getElementById('stat-ai').textContent = response.data.ai_generated_articles;
+        document.getElementById('stat-sources').textContent = response.data.categories.length;
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    // Search handler
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      currentSearchQuery = e.target.value;
+      currentPage = 1;
+      loadArticles(1, '', currentSearchQuery);
+    });
+
+    // Go to page
+    function goToPage(page) {
+      loadArticles(page, currentCategory, currentSearchQuery);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize
+    function init() {
+      loadArticles();
+      loadCategories();
+      loadStats();
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('zh-CN');
+    }
+
+    init();
+
+    // Refresh stats every 30 seconds
+    setInterval(loadStats, 30000);
+  </script>
+</body>
+</html>

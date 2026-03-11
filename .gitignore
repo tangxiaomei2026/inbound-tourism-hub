@@ -1,0 +1,17 @@
+node_modules/
+*.log
+.env
+.env.local
+.env.*.local
+data/tourism.db
+data/tourism.db-wal
+data/tourism.db-shm
+.DS_Store
+.vscode/
+.idea/
+dist/
+build/
+*.swp
+*.swo
+*~
+.env.production
