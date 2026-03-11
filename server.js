@@ -130,14 +130,18 @@ app.post('/api/articles', (req, res) => {
     }
 
     // Convert any value to integer for SQLite
-    const aiGenValue = ai_generated ? 1 : 0;
+    const aiGenValue = (ai_generated === true || ai_generated === 1) ? 1 : 0;
     
     // Ensure all values are strings or numbers
     const safeTitle = String(title);
     const safeContent = String(content);
     const safeCategory = String(category || 'news');
-    const safeSource = source ? String(source) : null;
-    const safeImageUrl = image_url ? String(image_url) : null;
+    const safeSource = source ? String(source) : 'Manual';
+    // Handle image_url - if it's boolean or invalid, set to null
+    let safeImageUrl = null;
+    if (image_url && typeof image_url === 'string' && image_url.length > 0) {
+      safeImageUrl = String(image_url);
+    }
 
     const stmt = db.prepare(`
       INSERT INTO articles (title, content, category, source, image_url, ai_generated)

@@ -17,11 +17,12 @@ cron.schedule('0 6 * * *', () => {
   }
 });
 
-// Daily article generation at 8 AM
+// Daily bilingual article generation at 8 AM (10 Chinese + 10 English = 20 articles)
 cron.schedule('0 8 * * *', () => {
-  console.log(`\n🤖 [${new Date().toLocaleString('zh-CN')}] Running daily article generation...`);
+  console.log(`\n🤖 [${new Date().toLocaleString('zh-CN')}] Running daily bilingual article generation...`);
+  console.log('📝 Target: 10 Chinese + 10 English articles');
   try {
-    execSync(`node ${path.join(__dirname, 'scripts/daily-generate.js')}`, { stdio: 'inherit' });
+    execSync(`node ${path.join(__dirname, 'scripts/generate-bilingual.js')}`, { stdio: 'inherit' });
   } catch (err) {
     console.error('❌ Generation failed:', err);
   }
