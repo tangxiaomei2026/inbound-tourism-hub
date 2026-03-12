@@ -568,10 +568,19 @@
     }
 
     // Load statistics
-    function loadStats() {
-      document.getElementById('stat-total').textContent = '10';
-      document.getElementById('stat-ai').textContent = '10';
-      document.getElementById('stat-sources').textContent = '5';
+    async function loadStats() {
+      try {
+        const response = await axios.get('/api/stats');
+        const stats = response.data;
+        document.getElementById('stat-total').textContent = stats.total_articles || 0;
+        document.getElementById('stat-ai').textContent = stats.ai_generated_articles || 0;
+        document.getElementById('stat-sources').textContent = (stats.categories?.length || 0) + (stats.languages?.length || 0);
+      } catch (err) {
+        console.error('Error loading stats:', err);
+        document.getElementById('stat-total').textContent = '10';
+        document.getElementById('stat-ai').textContent = '10';
+        document.getElementById('stat-sources').textContent = '5';
+      }
       document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('zh-CN');
     }
 
