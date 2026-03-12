@@ -1,7 +1,7 @@
 {
   "name": "inbound-tourism-hub",
-  "version": "2.0.0",
-  "description": "AI-powered bilingual inbound tourism content platform",
+  "version": "2.1.0",
+  "description": "AI-powered bilingual inbound tourism content platform with images and modal",
   "main": "server.js",
   "type": "module",
   "scripts": {
