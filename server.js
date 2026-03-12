@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Version: 2026-03-12 - Updated with images and modal
+// Version: 2026-03-12-v2 - Updated with images, modal and social UI
 
 // Middleware
 app.use(cors());
